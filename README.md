@@ -7,55 +7,54 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+# AppSalon – Sistema de Gestión de Salón de Belleza  
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🎯 Descripción
+Aplicación web para la gestión de servicios y citas en un salón de belleza. Incluye autenticación de usuarios, roles (cliente y administrador), gestión de servicios y visualización pública de catálogo.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🛠️ Tecnologías utilizadas
+- **Backend**: Laravel 10+
+- **Frontend**: Tailwind CSS, Alpine.js
+- **Base de datos**: MySQL
+- **Autenticación**: Laravel Breeze (personalizado)
+- **Despliegue local**: PHP Artisan Serve o npm run dev
 
-## Learning Laravel
+## 📥 Instrucciones de instalación
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. Clonar el repositorio:
+   ```bash
+   git clone https://github.com/tu-usuario/appsalon.git
+   cd appsalon
+2. Instalar dependencias:
+   ```bash
+   composer install
+   npm install
+3. Configurar entorno:
+   ```bash
+   cp .env.example .env
+4. Generar clave de aplicación:
+   ```bash
+   php artisan key:generate
+5. Ejecutar migraciones y datos de prueba:
+   ```bash
+   php artisan migrate --seed
+6. Iniciar el servidor:
+   ```bash
+   npm run dev o php artisan serve
+## 👤 Usuarios de prueba
+- **Correo**:admin@salonflow.com
+- **Contraseña**:12345678
+- **Rol**: Administrador
+- **Correo**:cliente@salonflow.com
+- **Contraseña**:12345678
+- **Rol**:Usuario normal
+## ✅ Funcionalidades implementadas
+- **Base de datos**: Tablas usuarios, servicios, citas, citasServicios con relaciones y claves foráneas.
+- **Autenticación**: Registro, login, logout, contraseñas hasheadas (bcrypt), validación de formularios, protección XSS.
+- **Gestión de servicios**:
+    - **Público**: listado de servicios disponibles.
+    - **Admin**: CRUD completo con validación.
+- **Roles**: Interfaz diferente para administrador y usuario normal.
+- **Arquitectura MVC**: Separación clara de capas, conexión a BD, manejo de errores.
+- **UI/UX**: Diseño responsive, mensajes de éxito/error, navegación intuitiva.
