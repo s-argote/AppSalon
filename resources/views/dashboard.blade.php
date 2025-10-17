@@ -6,7 +6,7 @@
     </x-slot>
 
     <!-- Fondo oscuro -->
-    <div class="bg-blue-400 text-white py-6">
+    <div class="bg-blue-600 text-white py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             <!-- Encabezado -->

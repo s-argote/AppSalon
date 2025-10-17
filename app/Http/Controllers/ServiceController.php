@@ -34,6 +34,9 @@ class ServiceController extends Controller
             'precio' => 'required|numeric|min:0',
             'descripcion' => 'nullable|string',
             'duracion' => 'nullable|integer|min:10',
+        ], [
+            'precio.min' => 'El precio no puede ser negativo.',
+            'duracion.min' => 'La duración mínima es de 10 minutos.',
         ]);
 
         Service::create($request->all());
@@ -65,6 +68,9 @@ class ServiceController extends Controller
             'precio' => 'required|numeric|min:0',
             'descripcion' => 'nullable|string',
             'duracion' => 'nullable|integer|min:10',
+        ], [
+            'precio.min' => 'El precio no puede ser negativo.',
+            'duracion.min' => 'La duración mínima es de 10 minutos.',
         ]);
 
         $service->update($request->all());

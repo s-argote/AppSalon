@@ -20,7 +20,7 @@
                 <div class="mb-4 border-b border-gray-200 pb-3">
                     <h3 class="text-lg font-semibold text-gray-800">Consulta de Servicios</h3>
                     <p class="mt-1 text-sm text-gray-700">
-                        Total de Registros: <span class="font-bold text-blue-800">{{ $services->count() }}</span>
+                        Total de Registros: <span class="font-bold text-blue-600">{{ $services->count() }}</span>
                     </p>
                 </div>
 
