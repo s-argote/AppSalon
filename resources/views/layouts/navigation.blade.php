@@ -16,6 +16,14 @@
                     <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                         Panel Administrativo
                     </x-nav-link>
+                    <!-- Nuevo: Enlace a Gestionar Servicios -->
+                    <x-nav-link :href="route('services.index')" :active="request()->routeIs('services.index')">
+                        {{ __('Gestionar Servicios') }}
+                    </x-nav-link>
+                    <!-- Nuevo: Enlace a Gestionar Usuarios -->
+                    <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
+                        {{ __('Gestionar Usuarios') }}
+                    </x-nav-link>
                     @else
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         Servicios Disponibles

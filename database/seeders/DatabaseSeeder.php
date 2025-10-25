@@ -75,8 +75,8 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
-        foreach ($services as $service) {
-            \App\Models\Service::create($service);
+        foreach ($services as $services) {
+            \App\Models\Service::create($services);
         }
 
         // Opcional: mostrar mensajes en consola

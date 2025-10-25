@@ -62,8 +62,24 @@
                         @enderror
                     </div>
 
+                    <!-- Campo Activo -->
+                    <div class="mt-6">
+                        <x-input-label for="activo" :value="__('Activo')" />
+                        <div class="mt-1 flex items-center">
+                            <!-- Solo el toggle está dentro del label -->
+                            <label for="activo" class="relative inline-flex items-center cursor-pointer">
+                                <input id="activo" name="activo" type="checkbox" class="sr-only peer" {{ old('activo', $service->activo) ? 'checked' : '' }}>
+                                <div class="w-11 h-6 bg-red-500 rounded-full peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:ring-offset-2 peer-focus:ring-offset-white peer-checked:bg-green-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                            </label>
+
+                            <!-- El texto está fuera del label -->
+                            <span class="ml-3 text-sm font-medium text-gray-900">¿Este servicio está activo?</span>
+                        </div>
+                        <x-input-error :messages="$errors->get('activo')" class="mt-2" />
+                    </div>
+
                     <!-- Botones Cancelar y Actualizar -->
-                    <div class="flex justify-between">
+                    <div class="flex justify-between mt-6">
                         <a href="{{ route('services.index') }}"
                             class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700">
                             Cancelar

@@ -39,7 +39,11 @@ class ServiceController extends Controller
             'duracion.min' => 'La duración mínima es de 10 minutos.',
         ]);
 
-        Service::create($request->all());
+        // Procesar el campo 'activo' correctamente
+        $data = $request->except('activo');
+        $data['activo'] = $request->has('activo') ? 1 : 0;
+
+        Service::create($data);
 
         return redirect()->route('services.index')->with('success', 'Servicio creado correctamente.');
     }
@@ -73,7 +77,11 @@ class ServiceController extends Controller
             'duracion.min' => 'La duración mínima es de 10 minutos.',
         ]);
 
-        $service->update($request->all());
+        // Procesar el campo 'activo' correctamente
+        $data = $request->except('activo');
+        $data['activo'] = $request->has('activo') ? 1 : 0;
+
+        $service->update($data);
 
         return redirect()->route('services.index')->with('success', 'Servicio actualizado correctamente.');
     }

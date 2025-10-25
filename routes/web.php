@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+
 //  Rutas de perfil (solo para usuarios autenticados)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -28,6 +30,9 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->group(function () {
     // Dashboard del administrador
     Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard');
+
+    // CRUD de usuarios
+    Route::resource('/users', UserController::class);
 
     // CRUD de servicios (controlador resource)
     Route::resource('/services', ServiceController::class);

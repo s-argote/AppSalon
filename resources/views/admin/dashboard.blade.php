@@ -15,14 +15,6 @@
                     Bienvenido, {{ Auth::user()->nombre }}
                 </p>
 
-                <!-- Botón de acción -->
-                <div class="mb-6 text-center">
-                    <a href="{{ route('services.index') }}"
-                        class="block p-4 bg-blue-50 border border-blue-200 rounded-lg shadow-sm hover:bg-blue-100 hover:border-blue-300 transition-colors duration-200">
-                        <h3 class="text-lg font-semibold text-blue-800">Gestionar Servicios</h3>
-                        <p class="mt-1 text-sm text-blue-600">Crear, ver, editar y eliminar servicios del sistema.</p>
-                    </a>
-                </div>
 
                 <!-- Título de la sección -->
                 <h2 class="text-2xl font-bold mb-4 text-gray-800">Últimos servicios agregados</h2>
@@ -44,6 +36,9 @@
                                 <th scope="col" class="px-4 py-2 border text-center text-xs uppercase tracking-wider">
                                     Duración
                                 </th>
+                                <th scope="col" class="px-4 py-2 border text-center text-xs uppercase tracking-wider">
+                                    Estado
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -57,6 +52,17 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
                                     {{ $service->duracion }} min
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                                    @if($service->activo)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-300 text-black">
+                                        Activo
+                                    </span>
+                                    @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300 text-black">
+                                        Inactivo
+                                    </span>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach
