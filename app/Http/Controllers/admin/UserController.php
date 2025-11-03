@@ -36,7 +36,7 @@ class UserController extends Controller
             'nombre' => 'required|string|max:60',
             'apellido' => 'required|string|max:60',
             'email' => 'required|email|unique:users,email',
-            'telefono' => 'required|string|max:10',
+            'telefono' => 'required|string|max:15',
             'password' => 'required|string|min:8|confirmed',
         ], [
             'nombre.required' => 'El nombre es obligatorio.',
@@ -91,7 +91,7 @@ class UserController extends Controller
             'nombre' => 'required|string|max:60',
             'apellido' => 'required|string|max:60',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'telefono' => 'required|string|max:10',
+            'telefono' => 'required|string|max:15',
         ], [
             'nombre.required' => 'El nombre es obligatorio.',
             'apellido.required' => 'El apellido es obligatorio.',

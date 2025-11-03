@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('apellido', 60);
             $table->string('email', 60)->unique();
             $table->string('password');
-            $table->string('telefono', 10)->nullable();
+            $table->string('telefono', 15);
             $table->boolean('admin')->default(false);
             $table->boolean('confirmado')->default(false);
             $table->string('token', 50)->nullable();

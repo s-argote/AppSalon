@@ -14,9 +14,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Limpiar tablas (opcional, si quieres empezar de cero)
-        DB::table('services')->truncate();
-        DB::table('users')->truncate();
+        // 1. Eliminar relaciones primero
+        DB::table('citasServicios')->delete();
+
+        // 2. Eliminar citas (si existen)
+        DB::table('citas')->delete();
+
+        // 3. Ahora sí, eliminar servicios y usuarios
+        DB::table('services')->delete();
+        DB::table('users')->delete();
 
         // Crear usuarios
         $admin = \App\Models\User::create([
@@ -24,7 +30,7 @@ class DatabaseSeeder extends Seeder
             'apellido' => 'Admin',
             'email' => 'admin@salonflow.com',
             'password' => Hash::make('12345678'),
-            'telefono' => null,
+            'telefono' => '3102987544',
             'admin' => true,
             'confirmado' => true,
             'token' => Str::random(30),
@@ -75,8 +81,8 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
-        foreach ($services as $services) {
-            \App\Models\Service::create($services);
+        foreach ($services as $service) {
+            \App\Models\Service::create($service);
         }
 
         // Opcional: mostrar mensajes en consola

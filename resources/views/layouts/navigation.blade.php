@@ -24,6 +24,10 @@
                     <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
                         {{ __('Gestionar Usuarios') }}
                     </x-nav-link>
+                    <!-- Nuevo: Enlace a Gestionar Citas -->
+                    <x-nav-link :href="route('citas.index')" :active="request()->routeIs('citas.index')">
+                        {{ __('Gestionar Citas') }}
+                    </x-nav-link>
                     @else
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         Servicios Disponibles

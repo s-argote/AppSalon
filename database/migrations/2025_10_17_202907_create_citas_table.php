@@ -13,7 +13,7 @@ return new class extends Migration
             $table->date('fecha');
             $table->time('hora');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->decimal('total', 6, 2)->nullable();
+            $table->decimal('total', 10, 2)->nullable();
             $table->enum('estado', ['pendiente', 'confirmada', 'completada', 'cancelada'])->default('pendiente');
             $table->timestamps();
         });
