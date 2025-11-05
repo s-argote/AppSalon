@@ -20,6 +20,7 @@ class Service extends Model
 
     public function citas()
     {
-        return $this->belongsToMany(Cita::class, 'citasServicios', 'servicioId', 'citaId');
+        return $this->belongsToMany(Cita::class, 'citasServicios', 'service_id', 'cita_id')
+            ->using(CitaServicio::class);
     }
 }

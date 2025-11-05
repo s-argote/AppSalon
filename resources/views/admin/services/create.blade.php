@@ -11,7 +11,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
 
                 <!-- Formulario -->
-                <form action="{{ route('services.store') }}" method="POST">
+                <form action="{{ route('admin.services.store') }}" method="POST">
                     @csrf
 
                     <!-- Campo Nombre -->
@@ -78,13 +78,13 @@
                     </div>
 
                     <!-- Botones Cancelar y Guardar -->
-                    <div class="flex justify-between mt-6">
-                        <a href="{{ route('services.index') }}"
+                    <div class="flex justify-end space-x-3">
+                        <a href="{{ route('admin.services.index') }}"
                             class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700">
                             Cancelar
                         </a>
                         <button type="submit"
-                            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700">
+                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700">
                             Guardar
                         </button>
                     </div>

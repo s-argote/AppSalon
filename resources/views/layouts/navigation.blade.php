@@ -17,20 +17,28 @@
                         Panel Administrativo
                     </x-nav-link>
                     <!-- Nuevo: Enlace a Gestionar Servicios -->
-                    <x-nav-link :href="route('services.index')" :active="request()->routeIs('services.index')">
+                    <x-nav-link :href="route('admin.services.index')" :active="request()->routeIs('admin.services.index')">
                         {{ __('Gestionar Servicios') }}
                     </x-nav-link>
                     <!-- Nuevo: Enlace a Gestionar Usuarios -->
-                    <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
+                    <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.index')">
                         {{ __('Gestionar Usuarios') }}
                     </x-nav-link>
                     <!-- Nuevo: Enlace a Gestionar Citas -->
-                    <x-nav-link :href="route('citas.index')" :active="request()->routeIs('citas.index')">
+                    <x-nav-link :href="route('admin.citas.index')" :active="request()->routeIs('admin.citas.index')">
                         {{ __('Gestionar Citas') }}
                     </x-nav-link>
                     @else
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         Servicios Disponibles
+                    </x-nav-link>
+                    <!-- Nuevo: Enlace a Mis Citas -->
+                    <x-nav-link :href="route('citasuser.index')" :active="request()->routeIs('citasuser.index')">
+                        {{ __('Mis Citas') }}
+                    </x-nav-link>
+                    <!-- Nuevo: Enlace a Agendar Cita -->
+                    <x-nav-link :href="route('citasuser.create')" :active="request()->routeIs('citasuser.create')">
+                        {{ __('Agendar Cita') }}
                     </x-nav-link>
                     @endif
                 </div>

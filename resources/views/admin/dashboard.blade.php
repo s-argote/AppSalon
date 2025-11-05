@@ -44,11 +44,11 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @foreach ($services as $service)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
                                     {{ $service->nombre }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
-                                    ${{ number_format($service->precio, 2) }}
+                                    ${{ number_format($service->precio, 0) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900">
                                     {{ $service->duracion }} min

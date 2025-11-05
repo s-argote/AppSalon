@@ -51,31 +51,31 @@ class DatabaseSeeder extends Seeder
         $services = [
             [
                 'nombre' => 'Corte de Cabello Hombre',
-                'precio' => 20000.00,
+                'precio' => 20000,
                 'duracion' => 30,
                 'descripcion' => 'Corte moderno o clásico según preferencia, incluye lavado rápido.'
             ],
             [
                 'nombre' => 'Corte de Cabello Dama',
-                'precio' => 50000.00,
+                'precio' => 50000,
                 'duracion' => 60,
                 'descripcion' => 'Corte personalizado para dama, incluye lavado y secado básico.'
             ],
             [
                 'nombre' => 'Manicure y Pedicure',
-                'precio' => 30000.00,
+                'precio' => 30000,
                 'duracion' => 45,
                 'descripcion' => 'Servicio completo de cuidado de uñas, hidratación y esmaltado.'
             ],
             [
                 'nombre' => 'Tinte Capilar Completo',
-                'precio' => 70000.00,
+                'precio' => 70000,
                 'duracion' => 120,
                 'descripcion' => 'Aplicación de color completo, lavado y secado. Incluye asesoría de tono.'
             ],
             [
                 'nombre' => 'Tratamiento Capilar Hidratante',
-                'precio' => 50000.00,
+                'precio' => 50000,
                 'duracion' => 90,
                 'descripcion' => 'Tratamiento profundo para restaurar brillo y suavidad del cabello.'
             ],

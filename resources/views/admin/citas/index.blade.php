@@ -22,63 +22,105 @@
                     </p>
                 </div>
 
-                <div class="py-6">
-                    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                        <div class="bg-white p-6 rounded-lg shadow">
-
-                            <table class="min-w-full divide-y divide-gray-200 text-center">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-xs font-medium text-black uppercase">Fecha</th>
-                                        <th class="px-6 py-3 text-xs font-medium text-black uppercase">Hora</th>
-                                        <th class="px-6 py-3 text-xs font-medium text-black uppercase">Usuario</th>
-                                        <th class="px-6 py-3 text-xs font-medium text-black uppercase">Total</th>
-                                        <th class="px-6 py-3 text-xs font-medium text-black uppercase">Estado</th>
-                                        <th class="px-6 py-3 text-xs font-medium text-black uppercase">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach($citas as $cita)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $cita->fecha->format('d/m/Y') }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $cita->hora->format('H:i') }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">{{ $cita->usuario->nombre }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">${{ number_format($cita->total, 0) }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs font-semibold rounded-full
-                                        @if($cita->estado === 'pendiente') bg-yellow-100 text-yellow-800
-                                        @elseif($cita->estado === 'confirmada') bg-blue-100 text-blue-800
-                                        @elseif($cita->estado === 'completada') bg-green-100 text-green-800
-                                        @else bg-red-100 text-red-800 @endif">
-                                                {{ ucfirst($cita->estado) }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                            <a href="{{ route('citas.show', $cita) }}" class="text-green-600 hover:text-green-900 mr-2">Ver</a>
-                                            <a href="{{ route('citas.edit', $cita) }}" class="text-blue-600 hover:text-blue-900 mr-2">Editar</a>
-                                            <form action="{{ route('citas.destroy', $cita) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar cita?');">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">Eliminar</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- Botones al final -->
-                        <div class="mt-6 flex flex-wrap gap-3">
-                            <!-- Botón 1: Volver al Dashboard -->
-                            <a href="{{ route('dashboard') }}"
-                                class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700">
-                                Volver al Panel Administrativo
-                            </a>
-                            <!-- Botón 2: Nuevo Servicio -->
-                            <a href="{{ route('citas.create') }}"
-                                class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700">
-                                Nueva Cita
-                            </a>
-                        </div>
-                    </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-center">
+                        <thead class="bg-gray-200">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
+                                    Id
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
+                                    Fecha
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
+                                    Hora
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
+                                    Usuario
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
+                                    Total
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
+                                    Estado
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
+                                    Acciones
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @foreach($citas as $cita)
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $cita->id }}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $cita->fecha->format('d/m/Y') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $cita->hora->format('g:i') . ($cita->hora->hour < 12 ? ' a. m.' : ' p. m.') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $cita->usuario->nombre }} {{ $cita->usuario->apellido }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    ${{ number_format($cita->total, 0) }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    @if($cita->estado === 'pendiente')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-300 text-black">
+                                        Pendiente
+                                    </span>
+                                    @elseif($cita->estado === 'confirmada')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-300 text-black">
+                                        Confirmada
+                                    </span>
+                                    @elseif($cita->estado === 'completada')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-300 text-black">
+                                        Completada
+                                    </span>
+                                    @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300 text-black">
+                                        Cancelada
+                                    </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <!-- Botón Ver -->
+                                    <a href="{{ route('admin.citas.show', $cita) }}"
+                                        class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-500 hover:bg-green-700 mr-1">
+                                        Ver
+                                    </a>
+                                    <!-- Botón Editar -->
+                                    <a href="{{ route('admin.citas.edit', $cita) }}"
+                                        class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-blue-500 hover:bg-blue-700 mr-1">
+                                        Editar
+                                    </a>
+                                    <!-- Botón Eliminar -->
+                                    <form action="{{ route('admin.citas.destroy', $cita) }}" method="POST" class="inline" onsubmit="return confirm('¿Seguro que deseas eliminar esta cita?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-red-500 hover:bg-red-700">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
+
+                <!-- Botones al final -->
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <a href="{{ route('admin.citas.create') }}"
+                        class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700">
+                        Nueva Cita
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </x-app-layout>

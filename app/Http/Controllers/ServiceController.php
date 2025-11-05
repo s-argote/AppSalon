@@ -45,7 +45,7 @@ class ServiceController extends Controller
 
         Service::create($data);
 
-        return redirect()->route('services.index')->with('success', 'Servicio creado correctamente.');
+        return redirect()->route('admin.services.index')->with('success', 'Servicio creado correctamente.');
     }
     /**
      * Mostrar detalles de un servicio
@@ -83,7 +83,7 @@ class ServiceController extends Controller
 
         $service->update($data);
 
-        return redirect()->route('services.index')->with('success', 'Servicio actualizado correctamente.');
+        return redirect()->route('admin.services.index')->with('success', 'Servicio actualizado correctamente.');
     }
 
     /**
@@ -93,6 +93,6 @@ class ServiceController extends Controller
     {
         $service->delete();
 
-        return redirect()->route('services.index')->with('success', 'Servicio eliminado correctamente.');
+        return redirect()->route('admin.services.index')->with('success', 'Servicio eliminado correctamente.');
     }
 }

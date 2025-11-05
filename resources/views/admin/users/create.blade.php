@@ -9,7 +9,7 @@
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
 
-                <form method="POST" action="{{ route('users.store') }}">
+                <form method="POST" action="{{ route('admin.users.store') }}">
                     @csrf
 
                     <!-- Nombre -->
@@ -70,13 +70,13 @@
                     </div>
 
                     <!-- Botones Cancelar y Guardar -->
-                    <div class="flex justify-between mt-6">
-                        <a href="{{ route('users.index') }}"
+                    <div class="flex justify-end space-x-3">
+                        <a href="{{ route('admin.users.index') }}"
                             class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700">
                             Cancelar
                         </a>
                         <button type="submit"
-                            class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700">
+                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700">
                             Guardar
                         </button>
                     </div>

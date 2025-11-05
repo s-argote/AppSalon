@@ -31,6 +31,7 @@ class Cita extends Model
 
     public function servicios()
     {
-        return $this->belongsToMany(Service::class, 'citasServicios', 'cita_id', 'service_id');
+        return $this->belongsToMany(Service::class, 'citasServicios', 'cita_id', 'service_id')
+            ->using(CitaServicio::class);
     }
 }

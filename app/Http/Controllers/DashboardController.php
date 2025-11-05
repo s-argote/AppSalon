@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\Service;
+use App\Models\Cita;
 
 class DashboardController extends Controller
 {
@@ -12,14 +13,24 @@ class DashboardController extends Controller
      */
     public function index()
     {
+
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
         // Si es admin, redirigir al panel de administración
-        if (Auth::user()->admin) {
+        if ($user->admin) {
             return redirect()->route('admin.dashboard');
         }
 
-        // Si es usuario normal, mostrar los servicios disponibles
+        $citas = Cita::with('servicios')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get();
+
         $services = Service::where('activo', true)->get();
 
-        return view('dashboard', compact('services'));
+        return view('dashboard', compact('citas', 'services'));
     }
 }

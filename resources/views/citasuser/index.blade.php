@@ -1,13 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Gestión de Servicios') }}
+            {{ __('Mis Citas') }}
         </h2>
     </x-slot>
 
-    <!-- Contenedor principal centrado con card -->
     <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
 
                 @if(session('success'))
@@ -16,15 +15,13 @@
                 </div>
                 @endif
 
-                <!-- Sección de Consulta de Servicios -->
                 <div class="mb-4 border-b border-gray-200 pb-3">
-                    <h3 class="text-lg font-semibold text-gray-800">Consulta de Servicios</h3>
+                    <h3 class="text-lg font-semibold text-gray-800">Consulta de citas agendadas</h3>
                     <p class="mt-1 text-sm text-gray-700">
-                        Total de Registros: <span class="font-bold text-blue-600">{{ $services->count() }}</span>
+                        Total de Registros: <span class="font-bold text-blue-800">{{ $citas->count() }}</span>
                     </p>
                 </div>
 
-                <!-- Tabla de servicios -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 text-center">
                         <thead class="bg-gray-200">
@@ -33,10 +30,16 @@
                                     ID
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
-                                    Nombre
+                                    Fecha
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
-                                    Precio
+                                    Hora
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
+                                    Servicios
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
+                                    Total
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
                                     Estado
@@ -46,51 +49,62 @@
                                 </th>
                             </tr>
                         </thead>
-
-                        <!-- Cuerpo de la tabla -->
                         <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach ($services as $service)
+                            @foreach($citas as $cita)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {{ $service->id }}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $cita->id }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ $service->nombre }}
+                                    {{ $cita->fecha->format('d/m/Y') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    ${{ number_format($service->precio, 0) }}
+                                    {{ $cita->hora->format('g:i') . ($cita->hora->hour < 12 ? ' a. m.' : ' p. m.') }}
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900">
+                                    @foreach($cita->servicios as $servicio)
+                                    <span class="block">{{ $servicio->nombre }}</span>
+                                    @endforeach
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    ${{ number_format($cita->total, 0, ',', '.') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    @if($service->activo)
+                                    @if($cita->estado === 'pendiente')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-300 text-black">
+                                        Pendiente
+                                    </span>
+                                    @elseif($cita->estado === 'confirmada')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-300 text-black">
+                                        Confirmada
+                                    </span>
+                                    @elseif($cita->estado === 'completada')
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-300 text-black">
-                                        Activo
+                                        Completada
                                     </span>
                                     @else
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-300 text-black">
-                                        Inactivo
+                                        Cancelada
                                     </span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <!-- Botón Ver -->
-                                    <a href="{{ route('admin.services.show', $service) }}"
-                                        class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-500 hover:bg-green-700 mr-1">
-                                        Ver
-                                    </a>
-                                    <!-- Botón Editar -->
-                                    <a href="{{ route('admin.services.edit', $service) }}"
+                                    @if($cita->estado === 'pendiente')
+                                    <a href="{{ route('citasuser.edit', $cita) }}"
                                         class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-blue-500 hover:bg-blue-700 mr-1">
                                         Editar
                                     </a>
-                                    <!-- Botón Eliminar -->
-                                    <form action="{{ route('admin.services.destroy', $service) }}" method="POST" class="inline" onsubmit="return confirm('¿Seguro que deseas eliminar este servicio?');">
+                                    <form action="{{ route('citasuser.destroy', $cita) }}" method="POST" class="inline" onsubmit="return confirm('¿Seguro deseas cancelar la cita?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
-                                            class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700">
-                                            Eliminar
+                                            class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-red-500 hover:bg-red-700">
+                                            Cancelar
                                         </button>
                                     </form>
+                                    @else
+                                    <span class="text-gray-500">No editable</span>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach
@@ -98,12 +112,11 @@
                     </table>
                 </div>
 
-                <!-- Botones al final -->
+                <!-- Botón Nueva Cita -->
                 <div class="mt-6 flex flex-wrap gap-3">
-                    <!-- Botón 2: Nuevo Servicio -->
-                    <a href="{{ route('admin.services.create') }}"
+                    <a href="{{ route('citasuser.create') }}"
                         class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700">
-                        Nuevo Servicio
+                        Nueva Cita
                     </a>
                 </div>
 

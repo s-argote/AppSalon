@@ -1,37 +1,37 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Cita;
 use App\Models\Service;
-use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class CitaController extends Controller
+class CitaUserController extends Controller
 {
     public function index()
     {
-        $citas = Cita::with('usuario', 'servicios')->latest()->get();
-        return view('admin.citas.index', compact('citas'));
+        $citas = Cita::with('servicios')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->get();
+
+        return view('citasuser.index', compact('citas'));
     }
 
     public function create()
     {
-        $usuarios = User::all();
         $servicios = Service::where('activo', true)->get();
-        return view('admin.citas.create', compact('usuarios', 'servicios'));
+        return view('citasuser.create', compact('servicios'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'fecha' => 'required|date',
+            'fecha' => 'required|date|after_or_equal:today',
             'hora' => 'required',
-            'user_id' => 'required|exists:users,id',
             'servicios' => 'required|array|min:1',
             'servicios.*' => 'exists:services,id',
-            'estado' => 'required|in:pendiente,confirmada,completada,cancelada',
         ]);
 
         // Validar disponibilidad
@@ -48,41 +48,47 @@ class CitaController extends Controller
         $cita = Cita::create([
             'fecha' => $request->fecha,
             'hora' => $request->hora,
-            'user_id' => $request->user_id,
+            'user_id' => Auth::id(),
             'total' => $total,
-            'estado' => $request->estado,
+            'estado' => 'pendiente',
         ]);
-
-
 
         $cita->servicios()->sync($request->servicios);
 
-        return redirect()->route('admin.citas.index')->with('success', 'Cita creada correctamente.');
-    }
-
-    public function show(Cita $cita)
-    {
-        $cita->load('usuario', 'servicios');
-        return view('admin.citas.show', compact('cita'));
+        return redirect()->route('citasuser.index')->with('success', '¡Cita reservada con éxito!');
     }
 
     public function edit(Cita $cita)
     {
-        $usuarios = User::all();
+        if ($cita->user_id !== Auth::id() || $cita->estado !== 'pendiente') {
+            abort(403, 'No puedes editar esta cita.');
+        }
         $servicios = Service::where('activo', true)->get();
-        return view('admin.citas.edit', compact('cita', 'usuarios', 'servicios'));
+        return view('citasuser.edit', compact('cita', 'servicios'));
     }
 
     public function update(Request $request, Cita $cita)
     {
+        if ($cita->user_id !== Auth::id() || $cita->estado !== 'pendiente') {
+            abort(403, 'No puedes editar esta cita.');
+        }
+
         $request->validate([
-            'fecha' => 'required|date',
+            'fecha' => 'required|date|after_or_equal:today',
             'hora' => 'required',
-            'user_id' => 'required|exists:users,id',
             'servicios' => 'required|array|min:1',
             'servicios.*' => 'exists:services,id',
-            'estado' => 'required|in:pendiente,confirmada,completada,cancelada',
         ]);
+
+        // Validar disponibilidad (excepto la misma cita)
+        $existe = Cita::where('fecha', $request->fecha)
+            ->where('hora', $request->hora)
+            ->where('id', '!=', $cita->id)
+            ->exists();
+
+        if ($existe) {
+            return back()->withErrors(['hora' => 'Ya existe una cita en esta fecha y hora.']);
+        }
 
         $servicios = Service::whereIn('id', $request->servicios)->get();
         $total = $servicios->sum('precio');
@@ -90,20 +96,22 @@ class CitaController extends Controller
         $cita->update([
             'fecha' => $request->fecha,
             'hora' => $request->hora,
-            'user_id' => $request->user_id,
             'total' => $total,
-            'estado' => $request->estado,
         ]);
 
         $cita->servicios()->sync($request->servicios);
 
-        return redirect()->route('admin.citas.index')->with('success', 'Cita actualizada correctamente.');
+        return redirect()->route('citasuser.index')->with('success', 'Cita actualizada correctamente.');
     }
 
     public function destroy(Cita $cita)
     {
-        $cita->servicios()->detach();
-        $cita->delete();
-        return redirect()->route('admin.citas.index')->with('success', 'Cita eliminada correctamente.');
+        if ($cita->user_id !== Auth::id()) {
+            abort(403, 'No puedes cancelar esta cita.');
+        }
+
+        $cita->update(['estado' => 'cancelada']);
+
+        return redirect()->route('citasuser.index')->with('success', 'Cita cancelada correctamente.');
     }
 }

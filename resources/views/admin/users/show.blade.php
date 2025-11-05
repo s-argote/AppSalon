@@ -27,26 +27,22 @@
                     <div>
                         <p class="text-sm font-medium text-gray-500">Rol:</p>
                         <p class="mt-1 text-sm text-gray-900">
-                            @if($user->admin)
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-black">
-                                Administrador
+                            <span class="px-2 inline-flex text-xs font-medium rounded-full
+                                @if($user->admin) bg-orange-300 text-black
+                                @else bg-gray-300 text-black @endif">
+                                {{ $user->admin ? 'Administrador' : 'Usuario' }}
                             </span>
-                            @else
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-black">
-                                Usuario
-                            </span>
-                            @endif
                         </p>
                     </div>
                 </div>
 
                 <!-- Botones -->
                 <div class="mt-6 flex justify-start space-x-3">
-                    <a href="{{ route('users.index') }}"
+                    <a href="{{ route('admin.users.index') }}"
                         class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-white bg-gray-500 hover:bg-gray-700">
                         Volver
                     </a>
-                    <a href="{{ route('users.edit', $user) }}"
+                    <a href="{{ route('admin.users.edit', $user) }}"
                         class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-700">
                         Editar
                     </a>
