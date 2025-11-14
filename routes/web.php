@@ -33,17 +33,35 @@ Route::middleware('auth')->group(function () {
     Route::delete('/mis-citas/{cita}', [CitaUserController::class, 'destroy'])->name('citasuser.destroy');
 });
 
-//  Panel de administración (solo para usuarios con rol admin)
-Route::middleware(['auth', AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
-    // Dashboard del administrador
-    Route::get('/', [AdminController::class, 'index'])->name('dashboard');
-    // CRUD de usuarios
-    Route::resource('/users', UserController::class);
-    // CRUD de servicios (controlador resource)
-    Route::resource('/services', ServiceController::class);
-    // CRUD de citas (controlador resource)
-    Route::resource('/citas', CitaController::class);
-});
+// Panel de administración (solo rol admin)
+Route::middleware(['auth', AdminMiddleware::class])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+        Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+
+        Route::resource('/users', UserController::class);
+        Route::resource('/services', ServiceController::class);
+        Route::resource('/citas', CitaController::class);
+
+        // Reportes
+        Route::get('/reportes/citas', [CitaController::class, 'reporteCitas'])
+            ->name('reportes.citas');
+
+        Route::get('/reportes/ingresos', [CitaController::class, 'reporteIngresos'])
+            ->name('reportes.ingresos');
+
+        // Exportaciones
+        Route::get('/reportes/citas/pdf', [CitaController::class, 'exportarCitasPDF'])
+            ->name('reportes.citas.pdf');
+
+        Route::get('/reportes/ingresos/excel', [CitaController::class, 'exportarIngresosExcel'])
+            ->name('reportes.ingresos.excel');
+
+        Route::get('/reportes/citas/csv', [CitaController::class, 'exportarCitasCSV'])
+            ->name('reportes.citas.csv');
+    });
 
 //  Incluye las rutas de autenticación (Laravel Breeze)
 require __DIR__ . '/auth.php';

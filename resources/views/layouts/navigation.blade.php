@@ -16,6 +16,14 @@
                     <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                         Panel Administrativo
                     </x-nav-link>
+                    <!-- Nuevo Enlace: Reportes Ingresos -->
+                    <x-nav-link :href="route('admin.reportes.ingresos')" :active="request()->routeIs('admin.reportes.ingresos')">
+                        {{ __('Reporte Ingresos') }}
+                    </x-nav-link>
+                    <!-- Nuevo Enlace: Reportes Citas -->
+                    <x-nav-link :href="route('admin.reportes.citas')" :active="request()->routeIs('admin.reportes.citas')">
+                        {{ __('Reporte Citas') }}
+                    </x-nav-link>
                     <!-- Nuevo: Enlace a Gestionar Servicios -->
                     <x-nav-link :href="route('admin.services.index')" :active="request()->routeIs('admin.services.index')">
                         {{ __('Gestionar Servicios') }}
