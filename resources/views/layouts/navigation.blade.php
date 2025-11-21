@@ -14,7 +14,7 @@
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     @if(Auth::check() && Auth::user()->admin)
                     <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
-                        Panel Administrativo
+                        {{ __('Resumen Estadistico') }}
                     </x-nav-link>
                     <!-- Nuevo Enlace: Reportes Ingresos -->
                     <x-nav-link :href="route('admin.reportes.ingresos')" :active="request()->routeIs('admin.reportes.ingresos')">

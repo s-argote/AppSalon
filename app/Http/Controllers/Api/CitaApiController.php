@@ -47,7 +47,6 @@ class CitaApiController extends Controller
     {
         $usuarioAutenticado = Auth::user();
 
-        // Si no es admin, solo puede ver sus propias citas
         if (!$usuarioAutenticado->admin && $usuarioAutenticado->id != $id) {
             return response()->json([
                 'success' => false,
@@ -91,7 +90,6 @@ class CitaApiController extends Controller
             'servicios.*' => 'exists:services,id',
         ];
 
-        // Si es admin, permite user_id opcional
         if (Auth::user()->admin) {
             $rules['user_id'] = 'nullable|exists:users,id';
         }
@@ -102,31 +100,64 @@ class CitaApiController extends Controller
             throw ValidationException::withMessages($validator->errors()->toArray());
         }
 
-        // Validar disponibilidad
-        $existe = Cita::where('fecha', $request->fecha)
-            ->where('hora', $request->hora)
-            ->exists();
+        // === VALIDACIONES AVANZADAS ===
 
-        if ($existe) {
+        // No domingos
+        if (date('w', strtotime($request->fecha)) == 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Ya existe una cita en esta fecha y hora.'
+                'message' => 'No se permiten citas los domingos.'
             ], 422);
         }
 
-        $servicios = Service::whereIn('id', $request->servicios)->get();
-        $total = $servicios->sum('precio');
-
-        // Determinar user_id
-        if (Auth::user()->admin && $request->filled('user_id')) {
-            $user_id = $request->user_id;
-        } else {
-            $user_id = Auth::id();
+        // Horario permitido
+        if ($request->hora < '08:00' || $request->hora > '19:00') {
+            return response()->json([
+                'success' => false,
+                'message' => 'La hora debe estar entre 08:00 y 19:00.'
+            ], 422);
         }
 
+        // Calcular duración y total
+        $servicios = Service::whereIn('id', $request->servicios)->get();
+        $duracion = $servicios->sum('duracion');
+        $total = $servicios->sum('precio');
+
+        // Calcular hora fin
+        $horaInicio = $request->hora;
+        $horaFin = date('H:i', strtotime($horaInicio . " + $duracion minutes"));
+
+        // Validar solapamiento
+        $solapa = Cita::where('fecha', $request->fecha)
+            ->where('estado', '!=', 'cancelada')
+            ->where(function ($q) use ($horaInicio, $horaFin) {
+                $q->whereBetween('hora', [$horaInicio, $horaFin])
+                    ->orWhereBetween('hora_fin', [$horaInicio, $horaFin])
+                    ->orWhere(function ($q2) use ($horaInicio, $horaFin) {
+                        $q2->where('hora', '<=', $horaInicio)
+                            ->where('hora_fin', '>=', $horaFin);
+                    });
+            })
+            ->exists();
+
+        if ($solapa) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Este horario ya está ocupado por otra cita.'
+            ], 422);
+        }
+
+        // Determinar user_id
+        $user_id = Auth::user()->admin && $request->filled('user_id')
+            ? $request->user_id
+            : Auth::id();
+
+        // Crear cita (incluyendo hora_fin y duracion_total)
         $cita = Cita::create([
             'fecha' => $request->fecha,
-            'hora' => $request->hora,
+            'hora' => $horaInicio,
+            'hora_fin' => $horaFin,
+            'duracion_total' => $duracion,
             'user_id' => $user_id,
             'total' => $total,
             'estado' => 'pendiente'
@@ -176,7 +207,6 @@ class CitaApiController extends Controller
             ], 404);
         }
 
-        // Verificar permisos
         if ($cita->user_id !== Auth::id() && !Auth::user()->admin) {
             return response()->json([
                 'success' => false,
@@ -185,7 +215,7 @@ class CitaApiController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'fecha' => 'required|date',
+            'fecha' => 'required|date|after_or_equal:today',
             'hora' => 'required',
             'servicios' => 'required|array|min:1',
             'servicios.*' => 'exists:services,id',
@@ -195,26 +225,50 @@ class CitaApiController extends Controller
             throw ValidationException::withMessages($validator->errors()->toArray());
         }
 
-        // Validar disponibilidad (excluyendo la cita actual)
-        $existe = Cita::where('fecha', $request->fecha)
-            ->where('hora', $request->hora)
+        // Validar domingos y horario
+        if (date('w', strtotime($request->fecha)) == 0) {
+            return response()->json(['success' => false, 'message' => 'No se permiten citas los domingos.'], 422);
+        }
+        if ($request->hora < '08:00' || $request->hora > '19:00') {
+            return response()->json(['success' => false, 'message' => 'La hora debe estar entre 08:00 y 19:00.'], 422);
+        }
+
+        // Calcular duración y total
+        $servicios = Service::whereIn('id', $request->servicios)->get();
+        $duracion = $servicios->sum('duracion');
+        $total = $servicios->sum('precio');
+        $horaInicio = $request->hora;
+        $horaFin = date('H:i', strtotime($horaInicio . " + $duracion minutes"));
+
+        // Validar solapamiento (excluyendo la cita actual)
+        $solapa = Cita::where('fecha', $request->fecha)
             ->where('id', '!=', $id)
+            ->where('estado', '!=', 'cancelada')
+            ->where(function ($q) use ($horaInicio, $horaFin) {
+                $q->whereBetween('hora', [$horaInicio, $horaFin])
+                    ->orWhereBetween('hora_fin', [$horaInicio, $horaFin])
+                    ->orWhere(function ($q2) use ($horaInicio, $horaFin) {
+                        $q2->where('hora', '<=', $horaInicio)
+                            ->where('hora_fin', '>=', $horaFin);
+                    });
+            })
             ->exists();
 
-        if ($existe) {
+        if ($solapa) {
             return response()->json([
                 'success' => false,
-                'message' => 'Ya existe una cita en esta fecha y hora.'
+                'message' => 'Este horario ya está reservado por otra cita.'
             ], 422);
         }
 
-        $servicios = Service::whereIn('id', $request->servicios)->get();
-        $total = $servicios->sum('precio');
-
+        // Actualizar (incluyendo hora_fin y duracion_total)
         $cita->update([
             'fecha' => $request->fecha,
-            'hora' => $request->hora,
-            'total' => $total
+            'hora' => $horaInicio,
+            'hora_fin' => $horaFin,
+            'duracion_total' => $duracion,
+            'total' => $total,
+            'user_id' => Auth::user()->admin && $request->filled('user_id') ? $request->user_id : $cita->user_id,
         ]);
 
         $cita->servicios()->sync($request->servicios);
