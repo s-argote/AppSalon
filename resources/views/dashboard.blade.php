@@ -23,7 +23,7 @@
                     <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $service->nombre }}</h3>
                     <div class="mb-3">
                         <span class="text-sm text-gray-500">Precio:</span>
-                        <span class="text-2xl font-bold text-blue-600 ml-1">${{ number_format($service->precio, 2) }}</span>
+                        <span class="text-2xl font-bold text-blue-600 ml-1">${{ number_format($service->precio, 0) }}</span>
                     </div>
                     <div class="mb-3">
                         <span class="text-sm text-gray-500">Duración:</span>

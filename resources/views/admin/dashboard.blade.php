@@ -15,6 +15,44 @@
                     Bienvenido, {{ Auth::user()->nombre }}
                 </p>
 
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+
+                    <!-- Citas hoy -->
+                    <div class="bg-blue-100 p-6 rounded-lg shadow">
+                        <p class="text-sm text-blue-700 font-semibold">Citas del día</p>
+                        <h2 class="text-3xl font-bold text-blue-900 mt-2">{{ $citasHoy }}</h2>
+                    </div>
+
+                    <!-- Ingresos hoy -->
+                    <div class="bg-green-100 p-6 rounded-lg shadow">
+                        <p class="text-sm text-green-700 font-semibold">Ingresos de hoy</p>
+                        <h2 class="text-3xl font-bold text-green-900 mt-2">${{ number_format($ingresosHoy, 0) }}</h2>
+                    </div>
+
+                    <!-- Total clientes -->
+                    <div class="bg-purple-100 p-6 rounded-lg shadow">
+                        <p class="text-sm text-purple-700 font-semibold">Total clientes</p>
+                        <h2 class="text-3xl font-bold text-purple-900 mt-2">{{ $clientesTotal }}</h2>
+                    </div>
+                </div>
+
+                <!-- GRÁFICAS -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+
+                    <!-- Gráfica de Citas -->
+                    <div class="bg-white shadow p-6 rounded-lg">
+                        <h3 class="text-xl font-bold mb-4 text-gray-700">Citas últimos 7 días</h3>
+                        <canvas id="chartCitas"></canvas>
+                    </div>
+
+                    <!-- Gráfica de Ingresos -->
+                    <div class="bg-white shadow p-6 rounded-lg">
+                        <h3 class="text-xl font-bold mb-4 text-gray-700">Ingresos últimos 7 días</h3>
+                        <canvas id="chartIngresos"></canvas>
+                    </div>
+
+                </div>
+
 
                 <!-- Título de la sección -->
                 <h2 class="text-2xl font-bold mb-4 text-gray-800">Últimos servicios agregados</h2>

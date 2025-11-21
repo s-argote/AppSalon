@@ -34,20 +34,56 @@ class CitaUserController extends Controller
             'servicios.*' => 'exists:services,id',
         ]);
 
-        // Validar disponibilidad
-        if (Cita::where('fecha', $request->fecha)
-            ->where('hora', $request->hora)
-            ->exists()
-        ) {
-            return back()->withErrors(['hora' => 'Ya existe una cita en esta fecha y hora. Por favor elige otro horario.']);
+        /** VALIDAR DOMINGO */
+        if (date('w', strtotime($request->fecha)) == 0) {
+            return back()->withErrors(['fecha' => 'No se permiten citas los domingos.']);
         }
 
+        /** VALIDAR FECHA PASADA */
+        if (strtotime($request->fecha) < strtotime(date('Y-m-d'))) {
+            return back()->withErrors(['fecha' => 'No puedes seleccionar una fecha pasada.']);
+        }
+
+        /** VALIDAR HORARIO */
+        if ($request->hora < '08:00' || $request->hora > '19:00') {
+            return back()->withErrors(['hora' => 'La hora debe estar entre 08:00 y 19:00.']);
+        }
+
+        /** CALCULAR DURACIÓN TOTAL */
         $servicios = Service::whereIn('id', $request->servicios)->get();
+        $duracion = $servicios->sum('duracion');
         $total = $servicios->sum('precio');
 
+        /** CALCULAR HORA FIN */
+        $horaInicio = $request->hora;
+        $horaFin = date('H:i', strtotime($horaInicio . " + $duracion minutes"));
+
+        /** VALIDAR SOLAPAMIENTO DE CITAS */
+        $existeSolapamiento = Cita::where('fecha', $request->fecha)
+            ->where(function ($q) use ($horaInicio, $horaFin) {
+                $q->whereBetween('hora', [$horaInicio, $horaFin]) // inicio dentro de otra cita
+                    ->orWhereBetween('hora_fin', [$horaInicio, $horaFin]) // fin dentro de otra cita
+                    ->orWhere(function ($q2) use ($horaInicio, $horaFin) {
+                        $q2->where('hora', '<=', $horaInicio)
+                            ->where('hora_fin', '>=', $horaFin); // cita abarca completamente
+                    });
+            })
+            ->exists();
+
+
+
+        if ($existeSolapamiento) {
+            return back()->withErrors([
+                'hora' => 'En este horario ya se encuentra otra cita. Elige otra hora.'
+            ]);
+        }
+
+        /** CREAR CITA */
         $cita = Cita::create([
             'fecha' => $request->fecha,
-            'hora' => $request->hora,
+            'hora' => $horaInicio,
+            'hora_fin' => $horaFin,
+            'duracion_total' => $duracion,
             'user_id' => Auth::id(),
             'total' => $total,
             'estado' => 'pendiente',
@@ -80,22 +116,47 @@ class CitaUserController extends Controller
             'servicios.*' => 'exists:services,id',
         ]);
 
-        // Validar disponibilidad (excepto la misma cita)
-        $existe = Cita::where('fecha', $request->fecha)
-            ->where('hora', $request->hora)
-            ->where('id', '!=', $cita->id)
-            ->exists();
+        /** VALIDACIONES: mismas que en store() */
 
-        if ($existe) {
-            return back()->withErrors(['hora' => 'Ya existe una cita en esta fecha y hora.']);
+        if (date('w', strtotime($request->fecha)) == 0) {
+            return back()->withErrors(['fecha' => 'No se permiten citas los domingos.']);
+        }
+
+        if ($request->hora < '08:00' || $request->hora > '19:00') {
+            return back()->withErrors(['hora' => 'La hora debe estar entre 08:00 y 19:00.']);
         }
 
         $servicios = Service::whereIn('id', $request->servicios)->get();
+        $duracion = $servicios->sum('duracion');
         $total = $servicios->sum('precio');
 
+        $horaInicio = $request->hora;
+        $horaFin = date('H:i', strtotime($horaInicio . " + $duracion minutes"));
+
+        $existe = Cita::where('fecha', $request->fecha)
+            ->where('id', '!=', $cita->id)
+            ->where(function ($q) use ($horaInicio, $horaFin) {
+                $q->whereBetween('hora', [$horaInicio, $horaFin])
+                    ->orWhereBetween('hora_fin', [$horaInicio, $horaFin])
+                    ->orWhere(function ($q2) use ($horaInicio, $horaFin) {
+                        $q2->where('hora', '<=', $horaInicio)
+                            ->where('hora_fin', '>=', $horaFin);
+                    });
+            })
+            ->exists();
+
+        if ($existe) {
+            return back()->withErrors([
+                'hora' => 'En este horario se encuentra otra cita.'
+            ]);
+        }
+
+        /** ACTUALIZAR */
         $cita->update([
             'fecha' => $request->fecha,
-            'hora' => $request->hora,
+            'hora' => $horaInicio,
+            'hora_fin' => $horaFin,
+            'duracion_total' => $duracion,
             'total' => $total,
         ]);
 

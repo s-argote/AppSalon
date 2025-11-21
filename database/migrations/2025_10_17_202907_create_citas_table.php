@@ -12,6 +12,8 @@ return new class extends Migration
             $table->id();
             $table->date('fecha');
             $table->time('hora');
+            $table->time('hora_fin')->nullable();
+            $table->integer('duracion_total')->nullable();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->decimal('total', 10, 0)->nullable();
             $table->enum('estado', ['pendiente', 'confirmada', 'completada', 'cancelada'])->default('pendiente');

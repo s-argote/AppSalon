@@ -12,6 +12,8 @@ class Cita extends Model
     protected $fillable = [
         'fecha',
         'hora',
+        'hora_fin',
+        'duracion_total',
         'user_id',
         'total',
         'estado',
@@ -20,7 +22,7 @@ class Cita extends Model
     protected $casts = [
         'fecha' => 'date',
         'hora' => 'datetime:H:i',
-        'total' => 'decimal:2',
+        'hora_fin' => 'datetime:H:i',
     ];
 
     // Relaciones
