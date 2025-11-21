@@ -36,6 +36,9 @@
                                     Hora
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
+                                    Hora Fin
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
                                     Usuario
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
@@ -59,6 +62,9 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ $cita->hora->format('g:i') . ($cita->hora->hour < 12 ? ' a. m.' : ' p. m.') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $cita->hora_fin->format('g:i') . ($cita->hora_fin->hour < 12 ? ' a. m.' : ' p. m.') }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ $cita->usuario->nombre }} {{ $cita->usuario->apellido }}
@@ -86,18 +92,23 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                    <!-- Botón Ver -->
+
+                                    <!-- Botón Ver siempre visible -->
                                     <a href="{{ route('admin.citas.show', $cita) }}"
                                         class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-500 hover:bg-green-700 mr-1">
                                         Ver
                                     </a>
+
+                                    @if($cita->estado === 'pendiente')
                                     <!-- Botón Editar -->
                                     <a href="{{ route('admin.citas.edit', $cita) }}"
                                         class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-blue-500 hover:bg-blue-700 mr-1">
                                         Editar
                                     </a>
+
                                     <!-- Botón Eliminar -->
-                                    <form action="{{ route('admin.citas.destroy', $cita) }}" method="POST" class="inline" onsubmit="return confirm('¿Seguro que deseas eliminar esta cita?');">
+                                    <form action="{{ route('admin.citas.destroy', $cita) }}" method="POST" class="inline"
+                                        onsubmit="return confirm('¿Seguro que deseas eliminar esta cita?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
@@ -105,7 +116,16 @@
                                             Eliminar
                                         </button>
                                     </form>
+
+                                    @else
+                                    <!-- Mensaje cuando la cita ya no es editable -->
+                                    <span class="inline-flex items-center px-2.5 py-1.5 rounded text-xs font-medium bg-gray-300 text-black">
+                                        Esta cita no es editable
+                                    </span>
+                                    @endif
+
                                 </td>
+
                             </tr>
                             @endforeach
                         </tbody>

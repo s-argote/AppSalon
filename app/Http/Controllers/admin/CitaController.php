@@ -28,24 +28,58 @@ class CitaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'fecha' => 'required|date',
+            'fecha' => 'required|date|after_or_equal:today',
             'hora' => 'required',
             'user_id' => 'required|exists:users,id',
             'servicios' => 'required|array|min:1',
             'servicios.*' => 'exists:services,id',
             'estado' => 'required|in:pendiente,confirmada,completada,cancelada',
+        ], [
+            'fecha.after_or_equal' => 'La fecha debe ser igual o posterior al día de hoy.',
+            'servicios.required' => 'Debes seleccionar al menos un servicio.',
         ]);
 
-        if (Cita::where('fecha', $request->fecha)->where('hora', $request->hora)->exists()) {
-            return back()->withErrors(['hora' => 'Ya existe una cita en esta fecha y hora.']);
+        // Validar que no sea domingo
+        if (date('w', strtotime($request->fecha)) == 0) {
+            return back()->withErrors(['fecha' => 'No se permiten citas los domingos.']);
         }
 
+        // Validar horario permitido
+        if ($request->hora < '08:00' || $request->hora > '19:00') {
+            return back()->withErrors(['hora' => 'La hora debe estar entre 08:00 y 19:00.']);
+        }
+
+        // Calcular duración y total
         $servicios = Service::whereIn('id', $request->servicios)->get();
+        $duracion = $servicios->sum('duracion');
         $total = $servicios->sum('precio');
 
+        // Calcular hora fin
+        $horaInicio = $request->hora;
+        $horaFin = date('H:i', strtotime($horaInicio . " + $duracion minutes"));
+
+        // Validar solapamiento
+        $solapa = Cita::where('fecha', $request->fecha)
+            ->where(function ($q) use ($horaInicio, $horaFin) {
+                $q->whereBetween('hora', [$horaInicio, $horaFin])
+                    ->orWhereBetween('hora_fin', [$horaInicio, $horaFin])
+                    ->orWhere(function ($q2) use ($horaInicio, $horaFin) {
+                        $q2->where('hora', '<=', $horaInicio)
+                            ->where('hora_fin', '>=', $horaFin);
+                    });
+            })
+            ->exists();
+
+        if ($solapa) {
+            return back()->withErrors(['hora' => 'Este horario ya está ocupado por otra cita.']);
+        }
+
+        // Guardar cita
         $cita = Cita::create([
             'fecha' => $request->fecha,
-            'hora' => $request->hora,
+            'hora' => $horaInicio,
+            'hora_fin' => $horaFin,
+            'duracion_total' => $duracion,
             'user_id' => $request->user_id,
             'total' => $total,
             'estado' => $request->estado,
@@ -58,7 +92,9 @@ class CitaController extends Controller
 
     public function show(Cita $cita)
     {
+        // Cargar relaciones
         $cita->load('usuario', 'servicios');
+
         return view('admin.citas.show', compact('cita'));
     }
 
@@ -71,21 +107,79 @@ class CitaController extends Controller
 
     public function update(Request $request, Cita $cita)
     {
+        // Validación básica siempre
         $request->validate([
-            'fecha' => 'required|date',
+            'estado' => 'required|in:pendiente,confirmada,completada,cancelada',
+            'fecha' => 'required|date|after_or_equal:today',
             'hora' => 'required',
             'user_id' => 'required|exists:users,id',
             'servicios' => 'required|array|min:1',
-            'servicios.*' => 'exists:services,id',
-            'estado' => 'required|in:pendiente,confirmada,completada,cancelada',
         ]);
 
-        $servicios = Service::whereIn('id', $request->servicios)->get();
-        $total = $servicios->sum('precio');
+        // --- Detectar si FECHA, HORA o SERVICIOS CAMBIARON ---
+        $cambioFecha = $request->fecha != $cita->fecha->format('Y-m-d');
+        $cambioHora = $request->hora != $cita->hora->format('H:i');
+        // Detectar si cambiaron los servicios (normalizados)
+        $serviciosOriginales = $cita->servicios->pluck('id')->map(fn($id) => (int)$id)->sort()->values()->toArray();
+        $serviciosNuevos = collect($request->servicios)->map(fn($id) => (int)$id)->sort()->values()->toArray();
 
+        $cambioServicios = $serviciosOriginales !== $serviciosNuevos;
+
+
+        $requiereValidarSolapamiento = $cambioFecha || $cambioHora || $cambioServicios;
+
+        // Si NO cambiaron fecha/hora/servicios → NO validar solapamiento
+        if ($requiereValidarSolapamiento) {
+
+            // No domingos
+            if (date('w', strtotime($request->fecha)) == 0) {
+                return back()->withErrors(['fecha' => 'No se permiten citas los domingos.']);
+            }
+
+            // Horario permitido
+            if ($request->hora < '08:00' || $request->hora > '19:00') {
+                return back()->withErrors(['hora' => 'La hora debe estar entre las 08:00 y 19:00.']);
+            }
+
+            // Calcular duración + total
+            $servicios = Service::whereIn('id', $request->servicios)->get();
+            $duracion = $servicios->sum('duracion');
+            $total = $servicios->sum('precio');
+
+            // Nueva hora fin
+            $horaInicio = $request->hora;
+            $horaFin = date('H:i', strtotime($horaInicio . " + $duracion minutes"));
+
+            // Validar solapamiento (EXCLUYENDO la cita actual)
+            $solapa = Cita::where('fecha', $request->fecha)
+                ->where('id', '!=', $cita->id)
+                ->where(function ($q) use ($horaInicio, $horaFin) {
+                    $q->whereBetween('hora', [$horaInicio, $horaFin])
+                        ->orWhereBetween('hora_fin', [$horaInicio, $horaFin])
+                        ->orWhere(function ($q2) use ($horaInicio, $horaFin) {
+                            $q2->where('hora', '<=', $horaInicio)
+                                ->where('hora_fin', '>=', $horaFin);
+                        });
+                })
+                ->exists();
+
+            if ($solapa) {
+                return back()->withErrors(['hora' => 'Este horario ya está reservado por otra cita.']);
+            }
+        } else {
+            // Si no cambia duracion, se mantiene la misma
+            $duracion = $cita->duracion_total;
+            $total = $cita->total;
+            $horaFin = $cita->hora_fin->format('H:i');
+            $horaInicio = $cita->hora->format('H:i');
+        }
+
+        // --- GUARDAR CAMBIOS ---
         $cita->update([
             'fecha' => $request->fecha,
-            'hora' => $request->hora,
+            'hora' => $horaInicio,
+            'hora_fin' => $horaFin,
+            'duracion_total' => $duracion,
             'user_id' => $request->user_id,
             'total' => $total,
             'estado' => $request->estado,
@@ -93,8 +187,12 @@ class CitaController extends Controller
 
         $cita->servicios()->sync($request->servicios);
 
-        return redirect()->route('admin.citas.index')->with('success', 'Cita actualizada correctamente.');
+        return redirect()->route('admin.citas.index')
+            ->with('success', 'Cita actualizada correctamente.');
     }
+
+
+
 
     public function destroy(Cita $cita)
     {

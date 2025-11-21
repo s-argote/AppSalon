@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/reservar', [CitaUserController::class, 'create'])->name('citasuser.create');
     Route::post('/reservar', [CitaUserController::class, 'store'])->name('citasuser.store');
     Route::get('/mis-citas', [CitaUserController::class, 'index'])->name('citasuser.index');
+    Route::post('/citasuser/{cita}/confirm', [CitaUserController::class, 'confirm'])->name('citasuser.confirm');
     Route::get('/mis-citas/{cita}/editar', [CitaUserController::class, 'edit'])->name('citasuser.edit');
     Route::put('/mis-citas/{cita}', [CitaUserController::class, 'update'])->name('citasuser.update');
     Route::delete('/mis-citas/{cita}', [CitaUserController::class, 'destroy'])->name('citasuser.destroy');

@@ -36,6 +36,9 @@
                                     Hora
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
+                                    Hora Fin
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
                                     Servicios
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-xs text-black uppercase tracking-wider">
@@ -60,6 +63,9 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {{ $cita->hora->format('g:i') . ($cita->hora->hour < 12 ? ' a. m.' : ' p. m.') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $cita->hora_fin->format('g:i') . ($cita->hora_fin->hour < 12 ? ' a. m.' : ' p. m.') }}
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900">
                                     @foreach($cita->servicios as $servicio)
@@ -102,8 +108,20 @@
                                             Cancelar
                                         </button>
                                     </form>
+                                    <form action="{{ route('citasuser.confirm', $cita) }}" method="POST" class="inline"
+                                        onsubmit="return confirm('¿Deseas confirmar esta cita?');">
+                                        @csrf
+                                        <button type="submit"
+                                            class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-500 hover:bg-green-700 ml-1">
+                                            Confirmar
+                                        </button>
+                                    </form>
+
                                     @else
-                                    <span class="text-gray-500">No editable</span>
+                                    <!-- Mensaje cuando la cita ya no es editable -->
+                                    <span class="inline-flex items-center px-2.5 py-1.5 rounded text-xs font-medium bg-gray-300 text-black">
+                                        No puedes editar esta cita
+                                    </span>
                                     @endif
                                 </td>
                             </tr>

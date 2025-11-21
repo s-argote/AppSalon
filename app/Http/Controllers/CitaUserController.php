@@ -32,8 +32,11 @@ class CitaUserController extends Controller
             'hora' => 'required',
             'servicios' => 'required|array|min:1',
             'servicios.*' => 'exists:services,id',
+        ], [
+            'fecha.after_or_equal' => 'La fecha debe ser hoy o una fecha futura.',
+            'servicios.required' => 'Debes seleccionar al menos un servicio.',
+            'servicios.min' => 'Debes seleccionar al menos un servicio.',
         ]);
-
         /** VALIDAR DOMINGO */
         if (date('w', strtotime($request->fecha)) == 0) {
             return back()->withErrors(['fecha' => 'No se permiten citas los domingos.']);
@@ -60,12 +63,13 @@ class CitaUserController extends Controller
 
         /** VALIDAR SOLAPAMIENTO DE CITAS */
         $existeSolapamiento = Cita::where('fecha', $request->fecha)
+            ->where('estado', '!=', 'cancelada')
             ->where(function ($q) use ($horaInicio, $horaFin) {
-                $q->whereBetween('hora', [$horaInicio, $horaFin]) // inicio dentro de otra cita
-                    ->orWhereBetween('hora_fin', [$horaInicio, $horaFin]) // fin dentro de otra cita
+                $q->whereBetween('hora', [$horaInicio, $horaFin])
+                    ->orWhereBetween('hora_fin', [$horaInicio, $horaFin])
                     ->orWhere(function ($q2) use ($horaInicio, $horaFin) {
                         $q2->where('hora', '<=', $horaInicio)
-                            ->where('hora_fin', '>=', $horaFin); // cita abarca completamente
+                            ->where('hora_fin', '>=', $horaFin);
                     });
             })
             ->exists();
@@ -114,6 +118,10 @@ class CitaUserController extends Controller
             'hora' => 'required',
             'servicios' => 'required|array|min:1',
             'servicios.*' => 'exists:services,id',
+        ], [
+            'fecha.after_or_equal' => 'La fecha debe ser hoy o una fecha futura.',
+            'servicios.required' => 'Debes seleccionar al menos un servicio.',
+            'servicios.min' => 'Debes seleccionar al menos un servicio.',
         ]);
 
         /** VALIDACIONES: mismas que en store() */
@@ -134,6 +142,7 @@ class CitaUserController extends Controller
         $horaFin = date('H:i', strtotime($horaInicio . " + $duracion minutes"));
 
         $existe = Cita::where('fecha', $request->fecha)
+            ->where('estado', '!=', 'cancelada')
             ->where('id', '!=', $cita->id)
             ->where(function ($q) use ($horaInicio, $horaFin) {
                 $q->whereBetween('hora', [$horaInicio, $horaFin])
@@ -144,6 +153,7 @@ class CitaUserController extends Controller
                     });
             })
             ->exists();
+
 
         if ($existe) {
             return back()->withErrors([
@@ -174,5 +184,22 @@ class CitaUserController extends Controller
         $cita->update(['estado' => 'cancelada']);
 
         return redirect()->route('citasuser.index')->with('success', 'Cita cancelada correctamente.');
+    }
+
+    public function confirm(Cita $cita)
+    {
+        if ($cita->user_id !== Auth::id()) {
+            abort(403, 'No puedes confirmar esta cita.');
+        }
+
+        if ($cita->estado !== 'pendiente') {
+            return back()->withErrors(['estado' => 'Solo puedes confirmar citas pendientes.']);
+        }
+
+        $cita->update([
+            'estado' => 'confirmada'
+        ]);
+
+        return redirect()->route('citasuser.index')->with('success', '¡Cita confirmada correctamente!');
     }
 }
